@@ -23,7 +23,6 @@ int mem_test(void *mem_base, size_t size_bytes)
     for(int pat=0; pat<PATTERN_CNT; pat++)
     {
         unsigned int val = patterns[pat];
-        printf("  Test pattern: 0x%08X\n", val);
 
         // write
         for(i=0; i<count; i++){
@@ -34,7 +33,7 @@ int mem_test(void *mem_base, size_t size_bytes)
         {
             if(p[i] != val)
             {
-                printf("ERROR! addr=%p, expect=0x%08X, read=0x%08X\n",
+                printf("  [ERROR] addr=%p, expect=0x%08X, read=0x%08X\n",
                        &p[i], val, p[i]);
                 err_cnt++;
             }
@@ -63,23 +62,31 @@ int main(int argc, char** argv)
         return -1;
     }
     printf("Start DDR memory test, size: %zu KB, total loops: %d\n", size_kb, loops);
+    printf("==================================================\n");
 
     int total_err = 0;
     for(int round = 1; round <= loops; round++)
     {
-        printf("\n==== Round %d / %d ====\n", round, loops);
         int err = mem_test(buf, bytes);
         total_err += err;
-        if(err >0)
-        {
-            printf("Round %d found %d errors!\n", round, err);
+
+        int remain = loops - round;
+        if(err == 0){
+            printf("[Progress] Round %d/%d done. No error. Remain: %d rounds. Total errors so far: %d\n",
+                   round, loops, remain, total_err);
+        }else{
+            printf("[Progress] Round %d/%d done. Found %d errors this round! Remain: %d rounds. Total errors: %d\n",
+                   round, loops, err, remain, total_err);
         }
+        // 每轮 flush 一下，确保 adb shell 实时看到输出
+        fflush(stdout);
     }
 
+    printf("==================================================\n");
     if(total_err ==0){
-        printf("\n==== ALL PASS ====\nNo memory error in all rounds.\n");
+        printf("==== ALL PASS ====\nNo memory error in all %d rounds.\n", loops);
     }else{
-        printf("\n==== FAIL ====\nTotal error count: %d\n", total_err);
+        printf("==== FAIL ====\nTotal error count: %d\n", total_err);
     }
 
     free(buf);
