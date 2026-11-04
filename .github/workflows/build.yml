@@ -1,4 +1,4 @@
-name: Build memcheck ARM32
+name: Build  memtest_time ARM32
 on:
   push:
     branches: [ main ]
@@ -17,15 +17,15 @@ jobs:
           ndk-version: r21e
           local-cache: true
 
-      - name: Compile memcheck armeabi-v7a
+      - name: Compile  memtest_time armeabi-v7a
         run: |
           export NDK=${{ steps.setup_ndk.outputs.ndk-path }}
           export TOOLCHAIN=$NDK/toolchains/llvm/prebuilt/linux-x86_64
           export CC=$TOOLCHAIN/bin/armv7a-linux-androideabi21-clang
-          $CC -O0 memcheck.c -o memcheck-armeabi
+          $CC -O0  memtest_time.c -o  memtest_time-armeabi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: memcheck-arm32
-          path: memcheck-armeabi
+          name:  memtest_time-arm32
+          path:  memtest_time-armeabi
